@@ -1,0 +1,22 @@
+# backend/.dockerignore
+
+# 仮想環境はコンテナに含める必要はないのじゃ
+venv/
+.venv/
+
+# Pythonのキャッシュやログファイル
+__pycache__/
+*.pyc
+*.log
+logs/
+
+# 環境変数ファイル（コンテナ実行時に渡すか、設定ファイルで管理する）
+.env
+
+# ローカルIDE設定
+.vscode/
+.idea/
+
+# ビルド成果物（FastAPIには通常不要だが、念のため）
+dist/
+build/

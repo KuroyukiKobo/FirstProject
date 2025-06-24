@@ -1,0 +1,25 @@
+# FirstProject/.gitignore
+
+# Pythonのコンパイル済みファイル
+*.pyc
+__pycache__/
+
+# Node.js関連の共通無視項目
+node_modules/
+dist/
+build/
+
+# 環境変数ファイル (全体レベルでも無視)
+.env
+.env.local
+
+# OS固有のファイル
+.DS_Store # macOS
+Thumbs.db # Windows
+desktop.ini # Windows
+
+# エディタ/IDE関連
+.vscode/
+.idea/
+
+# 各サブプロジェクトの.gitignoreに任せる項目も多いが、念のためここに主要なものを再掲

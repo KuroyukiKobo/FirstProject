@@ -1,0 +1,81 @@
+# C:\src\FirstProject\docker-compose.yml
+
+# version: '3.8' # この行は警告が出るため、削除しても良いし、このままでも問題ない
+
+services:
+  # FastAPIバックエンドサービスの設定じゃ
+  backend:
+    build: ./backend # backendディレクトリのDockerfileを使ってイメージをビルドするのじゃ
+    ports:
+      - "8000:8000" # ホストの8000番ポートをコンテナの8000番ポートにマッピングするのじゃ
+    volumes:
+      # ホストのコード変更をコンテナに即座に反映させるための設定じゃ (開発時のみ推奨)
+      - ./backend/app:/app/app # ホストの./backend/appをコンテナの/app/appにマッピング
+    env_file: # .envファイルから環境変数を読み込むのじゃ
+      - ./backend/.env
+    depends_on:
+      db: # backendサービスはdbサービスに依存するよう設定するのじゃ！
+        condition: service_healthy # dbサービスが"healthy"になってから起動
+
+  # Reactフロントエンドサービスの設定じゃ
+  frontend:
+    build: ./frontend # frontendディレクトリのDockerfileを使ってイメージをビルドするのじゃ
+    ports:
+      - "80:80" # ホストの80番ポートをコンテナの80番ポートにマッピングするのじゃ
+      # - "5173:5173" # 開発サーバーを動かす場合はこれも必要だが、上記DockerfileはNginxじゃ
+    volumes:
+      # React開発サーバーをDockerで動かす場合は、ここにソースコードのボリュームマウントが必要じゃ
+      # 開発サーバーを使う場合は npm run dev がCMDになる
+      - ./frontend:/app # ホストの./frontendをコンテナの/appにマッピング (開発用)
+      - /app/node_modules # node_modulesはホストからマウントしない (Docker内でのインストールを優先)
+    depends_on:
+      - backend # frontendサービスはbackendサービスに依存するゆえ、backendが起動してから起動する
+
+  # 新しく追加するPostgreSQLデータベースサービスじゃ！ (開発/本番用)
+  db:
+    image: postgres:16-alpine # PostgreSQLの公式イメージじゃ。軽量なalpine版がおすすめ
+    ports:
+      - "5432:5432" # ホストの5432ポートをコンテナの5432ポートにマッピング（PostgreSQLのデフォルトポート）
+    environment:
+      # 環境変数でDBの認証情報を設定するのじゃ
+      POSTGRES_DB: ${POSTGRES_DB} # データベース名
+      POSTGRES_USER: ${POSTGRES_USER} # ユーザー名
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} # パスワード
+    volumes:
+      # データベースのデータを永続化するためのボリュームじゃ。コンテナを削除してもデータが残る
+      - pg_data:/var/lib/postgresql/data
+    env_file: # .envファイルから認証情報を読み込む (プロジェクトルートの.env)
+      - ./.env # <--- ここが重要！プロジェクトルートの.envを参照させる
+
+    # DBのヘルスチェックを追加するのじゃ！ (PostgreSQLが実際に接続を受け付けられるか確認)
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"] # DBへの接続テストコマンド
+      interval: 5s # 5秒ごとにチェック
+      timeout: 5s # タイムアウト5秒
+      retries: 5 # 5回リトライ
+      start_period: 10s # 起動後10秒間はチェックを待つ
+
+  # 新しく追加するPostgreSQLデータベースサービスじゃ！ (テスト用)
+  db_test:
+    image: postgres:16-alpine
+    ports:
+      - "5433:5432" # ホストの5433ポートにマッピング！ (FastAPIのDBとは別のポートじゃ)
+    environment:
+      POSTGRES_DB: ${POSTGRES_TEST_DB}
+      POSTGRES_USER: ${POSTGRES_TEST_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_TEST_PASSWORD}
+    volumes:
+      - pg_test_data:/var/lib/postgresql/data
+    env_file: # 同じ.envファイルから読み込む (プロジェクトルートの.env)
+      - ./.env # <--- ここも重要！プロジェクトルートの.envを参照させる
+    healthcheck: # ヘルスチェックも追加
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_TEST_USER -d $$POSTGRES_TEST_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+# ボリュームを定義するのじゃ！
+volumes:
+  pg_data:
+  pg_test_data: # <--- これを追加するのじゃ！テスト用DBのボリューム

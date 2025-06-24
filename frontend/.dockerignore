@@ -1,0 +1,23 @@
+# frontend/.dockerignore
+
+# node_modules はコンテナ内部で npm install するゆえ、含める必要はないのじゃ
+node_modules/
+
+# ビルド成果物もコンテナ内部で生成されるので含める必要はない
+dist/
+build/
+
+# 環境変数ファイル
+.env
+.env.local
+
+# その他の無視ファイル
+.git/
+.gitignore
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# IDE files
+.vscode/
+.idea/

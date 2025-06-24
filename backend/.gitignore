@@ -1,0 +1,32 @@
+# backend/.gitignore
+
+# 仮想環境ディレクトリ
+venv/
+.venv/ # .venv も念のため
+
+# Pythonのバイトコードファイル
+__pycache__/
+*.pyc
+
+# 環境変数ファイル
+.env
+
+# ログファイル
+*.log
+logs/
+
+# エディタ/IDE関連
+.vscode/
+.idea/
+*~
+*.swp
+
+# テスト関連
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Alembic の一時ファイルやロックファイル
+alembic/.versions/*.pyc
+alembic.sqlite
+alembic.lock
