@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import os
 from dotenv import load_dotenv
-from pathlib import Path 
+from pathlib import Path
 
 # .envファイルをテスト時にも読み込むのじゃ (プロジェクトルートの.env)
 dotenv_path = Path(os.path.abspath(__file__)).parents[2] / ".env"

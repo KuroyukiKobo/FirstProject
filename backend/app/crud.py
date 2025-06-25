@@ -3,12 +3,13 @@
 from sqlalchemy.orm import Session
 from . import models # models.py で定義したDBモデルをインポート
 from . import schemas # スキーマ（Pydanticモデル）をインポート
+from .auth import get_password_hash, verify_password # パスワードハッシュ化と照合の関数をインポート 
 
 # ユーザーを作成する関数
 def create_user(db: Session, username: str, email: str, password: str):
     # 実際にはパスワードをハッシュ化するのじゃ！
-    fake_hashed_password = password + "notreallyhashed"
-    db_user = models.User(username=username, email=email, hashed_password=fake_hashed_password)
+    hashed_password = get_password_hash(password) # パスワードをハッシュ化
+    db_user = models.User(username=username, email=email, hashed_password=hashed_password)
     db.add(db_user) # セッションに追加
     db.commit() # データベースにコミット
     db.refresh(db_user) # データベースから最新の情報を取得（IDなど）

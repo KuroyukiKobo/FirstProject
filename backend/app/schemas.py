@@ -1,7 +1,8 @@
 # C:\src\FirstProject\backend\app\schemas.py
 
-from pydantic import BaseModel, ConfigDict # ConfigDictをインポートするのじゃ
+from pydantic import BaseModel, ConfigDict  # ConfigDictをインポートするのじゃ
 from typing import List, Optional
+
 
 # ユーザー作成時のリクエストボディ用スキーマ
 class UserCreate(BaseModel):
@@ -9,13 +10,15 @@ class UserCreate(BaseModel):
     email: str
     password: str
 
+
 # ユーザー情報表示時のレスポンス用スキーマ
 class User(BaseModel):
     id: int
     username: str
-    email: str | None = None # オプションにできる
+    email: str | None = None  # オプションにできる
 
-    model_config = ConfigDict(from_attributes=True) # これを追加するのじゃ！
+    model_config = ConfigDict(from_attributes=True)  # これを追加するのじゃ！
+
 
 # アイテム作成時のリクエストボディ用スキーマ
 class ItemCreate(BaseModel):
@@ -23,6 +26,7 @@ class ItemCreate(BaseModel):
     description: str | None = None
     price: float
     is_offer: bool = False
+
 
 # アイテム情報表示時のレスポンス用スキーマ
 class Item(BaseModel):
@@ -32,4 +36,18 @@ class Item(BaseModel):
     price: float
     is_offer: bool = False
 
-    model_config = ConfigDict(from_attributes=True) # これを追加するのじゃ！
+    model_config = ConfigDict(from_attributes=True)  # これを追加するのじゃ！
+
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    username: str | None = None
+    model_config = ConfigDict(from_attributes=True)  # これを追加するのじゃ！
