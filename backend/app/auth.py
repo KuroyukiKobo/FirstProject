@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+from .schemas import TokenData
 
 # ---------------------------------------------
 # ここに秘密情報を設定するのじゃ！

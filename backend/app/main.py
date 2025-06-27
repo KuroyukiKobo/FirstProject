@@ -14,7 +14,7 @@ from contextlib import asynccontextmanager  # これを追加するのじゃ
 from datetime import timedelta
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
-from . import models, schemas, crud  # 新しく作ったファイルからインポート
+from . import models, schemas, crud, auth # 新しく作ったファイルからインポート
 from .auth import (
     get_password_hash,
     verify_password,
@@ -216,21 +216,25 @@ def read_user_by_username(username: str, db: Session = Depends(get_db)):
 
 
 @app.get("/users/me/", response_model=schemas.User)
-def read_current_user(
-    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
-):
-    # トークンからユーザー名を取得するのじゃ
+def read_users_me(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    # トークンを検証し、ユーザー名を取得する
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="認証情報が無効じゃ！",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    token_data = crud.verify_access_token(token, credentials_exception)
 
-    # ユーザー名からユーザー情報を取得するのじゃ
+    # ----------------------------------------------------
+    # ここを修正するのじゃ！
+    # crud.verify_access_token を auth.verify_access_token に修正する
+    token_data = auth.verify_access_token(token, credentials_exception) # <-- ここを修正
+    # ----------------------------------------------------
+
+    # ユーザー名でデータベースからユーザー情報を取得
     user = crud.get_user_by_username(db, username=token_data.username)
     if user is None:
         raise credentials_exception
+
     return user
 
 
